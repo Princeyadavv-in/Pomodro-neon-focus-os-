@@ -121,13 +121,29 @@ button:hover { background:var(--neon); color:black; cursor:pointer; }
 </div>
 
 <!-- AUDIO ELEMENTS -->
-<audio id="rain" loop><source src="https://www.soundjay.com/nature/rain-01.mp3" type="audio/mpeg"></audio>
-<audio id="birds" loop><source src="https://www.soundjay.com/nature/birds-1.mp3" type="audio/mpeg"></audio>
-<audio id="thunder" loop><source src="https://www.soundjay.com/nature/thunder-01.mp3" type="audio/mpeg"></audio>
-<audio id="piano" loop><source src="https://www.soundjay.com/nature/piano-01.mp3" type="audio/mpeg"></audio>
-<audio id="ocean" loop><source src="https://www.soundjay.com/nature/ocean-01.mp3" type="audio/mpeg"></audio>
-<audio id="wind" loop><source src="https://www.soundjay.com/nature/wind-01.mp3" type="audio/mpeg"></audio>
-<audio id="bell"><source src="https://actions.google.com/sounds/v1/alarms/soft_bell.ogg"></audio>
+<audio id="rainBirds" loop>
+  <source src="https://www.orangefreesounds.com/wp-content/uploads/2015/05/Wind-birds-and-rain-nature-sounds-for-sleep-and-relaxation.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="oceanWaves" loop>
+  <source src="https://indiemusicbox.s3.amazonaws.com/downloads/nature-sounds-pack/Ocean+Waves+(Preview).mp3" type="audio/mpeg">
+</audio>
+
+<audio id="softRain" loop>
+  <source src="https://indiemusicbox.s3.amazonaws.com/downloads/nature-sounds-pack/Soft+Rain+(Preview).mp3" type="audio/mpeg">
+</audio>
+
+<audio id="forestStream" loop>
+  <source src="https://indiemusicbox.s3.amazonaws.com/downloads/nature-sounds-pack/Forest+Stream+(Preview).mp3" type="audio/mpeg">
+</audio>
+
+<audio id="thunderRain" loop>
+  <source src="https://indiemusicbox.s3.amazonaws.com/downloads/nature-sounds-pack/Thunder+and+Rain+(Preview).mp3" type="audio/mpeg">
+</audio>
+
+<audio id="bell">
+  <source src="https://actions.google.com/sounds/v1/alarms/soft_bell.ogg" type="audio/ogg">
+</audio>
 
 <script>
 /* -------- TIMER -------- */
@@ -251,14 +267,14 @@ document.addEventListener('keydown',(e)=>{
 });
 
 /* -------- NATURE SOUNDS WITH SLIDERS -------- */
-const soundList=[
- {id:'rain',emoji:'🌧️',name:'Rain'},
- {id:'birds',emoji:'🐦',name:'Birds'},
- {id:'thunder',emoji:'⚡',name:'Thunder'},
- {id:'piano',emoji:'🎹',name:'Piano'},
- {id:'ocean',emoji:'🌊',name:'Ocean'},
- {id:'wind',emoji:'🌬️',name:'Wind'}
+const soundList = [
+  { id: 'rainBirds', emoji: '🌧️🐦', name: 'Rain & Birds' },
+  { id: 'oceanWaves', emoji: '🌊', name: 'Ocean Waves' },
+  { id: 'softRain', emoji: '🌦️', name: 'Soft Rain' },
+  { id: 'forestStream', emoji: '🌲💧', name: 'Forest Stream' },
+  { id: 'thunderRain', emoji: '⛈️', name: 'Thunder & Rain' }
 ];
+
 const soundControls=document.getElementById('soundControls');
 soundList.forEach(s=>{
   const div=document.createElement('div');
@@ -298,4 +314,5 @@ function focusMode(){
 </script>
 </body>
 </html>
+
 
