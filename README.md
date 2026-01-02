@@ -1,4 +1,4 @@
-# ⚡ Neon Focus OS(created by prince )
+# ⚡ Neon Focus OS(created by Prince )
 
 A neon-themed Pomodoro & focus dashboard for students.
 
