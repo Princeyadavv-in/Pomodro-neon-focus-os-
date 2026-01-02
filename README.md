@@ -10,7 +10,7 @@ A neon-themed Pomodoro & focus dashboard for students.
 - LocalStorage persistence
 
 ## Live Demo
-https://your-username.github.io/neon-focus-os/
+https://princeyadavv-in.github.io/Pomodro-neon-focus-os-/
 
 ## Tech
 - HTML
