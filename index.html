@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Neon Focus OS</title>
+
+<style>
+:root { --neon:#00ffcc; --bg:#020b08; }
+
+* { box-sizing:border-box; font-family:Inter,Arial; }
+
+body {
+  margin:0;
+  background: radial-gradient(circle at top, #022, black);
+  color: var(--neon);
+  min-height:100vh;
+}
+
+/* ===== LAYOUT ===== */
+.app {
+  display:grid;
+  grid-template-columns:260px 1fr 260px;
+  grid-template-rows:auto 1fr auto;
+  gap:15px;
+  padding:15px;
+  height:100vh;
+}
+
+.panel {
+  border:1px solid var(--neon);
+  padding:10px;
+  background:rgba(0,0,0,.6);
+  box-shadow:0 0 20px var(--neon);
+}
+
+.center {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ===== TIMER ===== */
+.clock {
+  position:relative;
+  width:300px;
+  height:300px;
+}
+
+svg { transform:rotate(-90deg); }
+circle { fill:none; stroke-width:12; }
+.bg { stroke:#033; }
+
+.progress {
+  stroke:var(--neon);
+  filter:drop-shadow(0 0 20px var(--neon));
+}
+
+.time {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:42px;
+  font-weight:bold;
+}
+
+/* ===== UI ===== */
+h2,h3 { text-align:center; margin:5px 0; }
+
+button,input,select {
+  width:100%;
+  background:black;
+  border:2px solid var(--neon);
+  color:var(--neon);
+  padding:8px;
+  margin-top:6px;
+}
+
+button:hover {
+  background:var(--neon);
+  color:black;
+  cursor:pointer;
+}
+
+.task {
+  padding:6px;
+  border-bottom:1px solid #044;
+  cursor:pointer;
+}
+
+.task.active {
+  background:var(--neon);
+  color:black;
+}
+
+.task.done {
+  text-decoration:line-through;
+  opacity:.6;
+}
+
+.bar {
+  height:8px;
+  background:var(--neon);
+  margin:4px 0;
+}
+
+/* footer */
+.footer {
+  grid-column:1/4;
+  text-align:center;
+  font-size:12px;
+  opacity:.7;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- LEFT -->
+<div class="panel">
+<h3>📝 Tasks</h3>
+<input id="taskInput" placeholder="New task">
+<button onclick="addTask()">Add</button>
+<div id="tasks"></div>
+</div>
+
+<!-- CENTER -->
+<div class="center">
+<div>
+<h2>⚡ Neon Focus OS</h2>
+
+<div class="clock">
+<svg width="300" height="300">
+  <circle class="bg" cx="150" cy="150" r="130"/>
+  <circle class="progress" cx="150" cy="150" r="130"/>
+</svg>
+<div class="time" id="display">25:00</div>
+</div>
+
+<button onclick="start()">▶ Start</button>
+<button onclick="pause()">⏸ Pause</button>
+<button onclick="reset()">⏹ Reset</button>
+</div>
+</div>
+
+<!-- RIGHT -->
+<div class="panel">
+<h3>🎯 Session</h3>
+
+<select id="mode">
+  <option value="25">Pomodoro (25)</option>
+  <option value="50">Deep Work (50)</option>
+  <option value="5">Short Break</option>
+  <option value="15">Long Break</option>
+</select>
+
+<input id="intent" placeholder="What are you studying?">
+
+<hr>
+
+<div>🔥 Streak: <span id="streak">0</span></div>
+<div>🍅 Today: <span id="todayPomo">0</span></div>
+<div>🎯 Goal: <span id="goal">8</span></div>
+
+<h4>📅 Last 7 Days</h4>
+<div id="week"></div>
+</div>
+
+<div class="footer">
+Space = Start • R = Reset • Focus hard 💪
+</div>
+
+</div>
+
+<audio id="beep">
+<source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<script>
+/* ===== TIMER ===== */
+let total=1500, remaining=1500, timer=null;
+const display=document.getElementById("display");
+const progress=document.querySelector(".progress");
+const C=2*Math.PI*130;
+progress.style.strokeDasharray=C;
+
+mode.onchange=()=>setTime(mode.value*60);
+
+function start(){
+ if(timer) return;
+ timer=setInterval(()=>{
+  remaining--;
+  update();
+  if(remaining<=0) finish();
+ },1000);
+}
+
+function pause(){ clearInterval(timer); timer=null; }
+function reset(){ pause(); remaining=total; update(); }
+
+function setTime(sec){ total=sec; remaining=sec; update(); }
+
+function update(){
+ let m=Math.floor(remaining/60), s=remaining%60;
+ display.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+ progress.style.strokeDashoffset=C*(remaining/total);
+ if(remaining<=10) display.style.color="#ff5555";
+ else display.style.color="var(--neon)";
+}
+
+function finish(){
+ pause(); beep.play();
+ logSession(total/60);
+ reset();
+}
+
+/* ===== TASKS ===== */
+let active=null;
+function loadTasks(){
+ const t=JSON.parse(localStorage.getItem("tasks")||"[]");
+ tasks.innerHTML="";
+ t.forEach((x,i)=>{
+  const d=document.createElement("div");
+  d.className="task "+(i===active?"active":"")+(x.done?" done":"");
+  d.textContent=`${x.text} 🍅${x.p||0}`;
+  d.onclick=()=>{
+    active=i;
+    localStorage.setItem("activeTask",i);
+    loadTasks();
+  };
+  d.ondblclick=()=>{
+    x.done=!x.done;
+    localStorage.setItem("tasks",JSON.stringify(t));
+    loadTasks();
+  };
+  tasks.appendChild(d);
+ });
+}
+
+function addTask(){
+ const v=taskInput.value.trim();
+ if(!v) return;
+ const t=JSON.parse(localStorage.getItem("tasks")||"[]");
+ t.push({text:v,p:0,done:false});
+ localStorage.setItem("tasks",JSON.stringify(t));
+ taskInput.value="";
+ loadTasks();
+}
+
+/* ===== ANALYTICS ===== */
+function key(){ return new Date().toISOString().slice(0,10); }
+
+function logSession(min){
+ const d=JSON.parse(localStorage.getItem("stats")||"{}");
+ const k=key();
+ d[k]=d[k]||{p:0};
+ d[k].p++;
+ localStorage.setItem("stats",JSON.stringify(d));
+
+ if(active!==null){
+  const t=JSON.parse(localStorage.getItem("tasks"));
+  t[active].p++;
+  localStorage.setItem("tasks",JSON.stringify(t));
+ }
+ renderStats();
+}
+
+function renderStats(){
+ const d=JSON.parse(localStorage.getItem("stats")||"{}");
+ const keys=Object.keys(d).sort();
+ todayPomo.textContent=d[key()]?.p||0;
+
+ // streak
+ let s=0;
+ let today=new Date(key());
+ for(let i=keys.length-1;i>=0;i--){
+  const day=new Date(keys[i]);
+  if((today-day)/86400000===s) s++;
+  else break;
+ }
+ streak.textContent=s;
+
+ // week
+ week.innerHTML="";
+ keys.slice(-7).forEach(k=>{
+  const b=document.createElement("div");
+  b.className="bar";
+  b.style.width=(d[k].p*20)+"px";
+  week.appendChild(b);
+ });
+}
+
+/* ===== SHORTCUTS ===== */
+document.addEventListener("keydown",e=>{
+ if(e.code==="Space"){ e.preventDefault(); start(); }
+ if(e.code==="KeyR") reset();
+});
+
+setTime(1500);
+active=+localStorage.getItem("activeTask");
+loadTasks();
+renderStats();
+</script>
+</body>
+</html>
